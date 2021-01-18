@@ -11,5 +11,5 @@
   "framework": "netcoreapp3.1",
   "s3-prefix": "TodoBackend/",
   "template": "template.yaml",
-  "template-parameters": ""
+  "template-parameters": "ShouldCreateTable=true;BlogTableName="
 }

@@ -1,45 +1,8 @@
-# todobackend-aws-lambda-dynamodb-fsharp
+# Todo-Backend Implementation in F# and AWS Lambda
 
+Todo-Backend implementation in [F#](https://fsharp.org/) using [AWS Lambda](https://aws.amazon.com/lambda/), [API Gateway](https://aws.amazon.com/api-gateway/), [DynamoDB](https://aws.amazon.com/dynamodb/) and [CloudFormation](https://aws.amazon.com/cloudformation/).
 
-# Empty AWS Serverless Application Project
+For more information and to try other implementation, see http://www.todobackend.com
 
-This starter project consists of:
-* serverless.template - an AWS CloudFormation Serverless Application Model template file for declaring your Serverless functions and other AWS resources
-* Function.fs - Code file containing the F# function mapped to the single function declared in the template file
-* aws-lambda-tools-defaults.json - default argument settings for use with Visual Studio and command line deployment tools for AWS
-
-You may also have a test project depending on the options selected.
-
-The generated project contains a Serverless template declaration for a single AWS Lambda function that will be exposed through Amazon API Gateway as a HTTP *Get* operation. Edit the template to customize the function or add more functions and other resources needed by your application, and edit the function code in Function.cs. You can then deploy your Serverless application.
-
-## Here are some steps to follow from Visual Studio:
-
-To deploy your Serverless application, right click the project in Solution Explorer and select *Publish to AWS Lambda*.
-
-To view your deployed application open the Stack View window by double-clicking the stack name shown beneath the AWS CloudFormation node in the AWS Explorer tree. The Stack View also displays the root URL to your published application.
-
-## Here are some steps to follow to get started from the command line:
-
-Once you have edited your template and code you can deploy your application using the [Amazon.Lambda.Tools Global Tool](https://github.com/aws/aws-extensions-for-dotnet-cli#aws-lambda-amazonlambdatools) from the command line.
-
-Install Amazon.Lambda.Tools Global Tools if not already installed.
-```
-    dotnet tool install -g Amazon.Lambda.Tools
-```
-
-If already installed check if new version is available.
-```
-    dotnet tool update -g Amazon.Lambda.Tools
-```
-
-Execute unit tests
-```
-    cd "TodoBackend/test/TodoBackend.Tests"
-    dotnet test
-```
-
-Deploy application
-```
-    cd "TodoBackend/src/TodoBackend"
-    dotnet lambda deploy-serverless
-```
+## Try it out Live
+You can run the [spec tests](https://todobackend.com/specs/index.html?https://pcy3anbgx8.execute-api.us-east-1.amazonaws.com/Prod/) or try out the [client](http://www.todobackend.com/client/index.html?https://pcy3anbgx8.execute-api.us-east-1.amazonaws.com/Prod/).

@@ -7,6 +7,24 @@ Parameters:
   StageName:
     Type: String
     Default: Prod
+    
+  ShouldCreateTable:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Default: false
+    Description: If true then the DynamoDB Todo table will be created with the CloudFormation stack.
+    
+  TodoTableName:
+    Type: String
+    MinLength: 0
+    Description: Name of DynamoDB table used to store the todo item. If left blank a new table will be created.
+    Default: 'todobackend-aws-lambda-dynamodb-fsharp'
+
+Conditions:
+  CreateTodoTable: !Equals [!Ref ShouldCreateTable, 'true']
+  TodoTableNameGenerated: !Equals [!Ref TodoTableName, '']
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -14,25 +32,50 @@ Globals:
     Timeout: 10
 
 Resources:
+  TodoTable:
+    Type: AWS::DynamoDB::Table
+    Condition: CreateTodoTable
+    Properties:
+      TableName: !If [TodoTableNameGenerated, !Ref AWS::NoValue, !Ref TodoTableName]
+      AttributeDefinitions:
+        -
+          AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "Id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "2"
+        WriteCapacityUnits: "2"
+  
   TodoBackendApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref StageName
       CorsConfiguration:
         AllowOrigins:
-          - "*"
+          - '*'
         AllowHeaders:
-          - "*"
+          - '*'
         AllowMethods:
-          - "*"
+          - '*'
         MaxAge: 600
 
-  GetHandler:
+  GetItemsHandler:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: ./
-      Handler: TodoBackend::TodoBackend.Functions::GetHandler
+      Handler: TodoBackend::TodoBackend.Functions::GetItems
       Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
       Events:
         ApiGatewayRequest:
           Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -41,11 +84,122 @@ Resources:
             Path: /
             Method: GET
 
+  GetItemHandler:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: TodoBackend::TodoBackend.Functions::GetItem
+      Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
+      Events:
+        ApiGatewayRequest:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref TodoBackendApi
+            Path: /{id}
+            Method: GET
 
+  PostItemHandler:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: TodoBackend::TodoBackend.Functions::PostItem
+      Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
+      Events:
+        ApiGatewayRequest:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref TodoBackendApi
+            Path: /
+            Method: POST
+
+  PatchItemHandler:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: TodoBackend::TodoBackend.Functions::PatchItem
+      Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
+      Events:
+        ApiGatewayRequest:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref TodoBackendApi
+            Path: /{id}
+            Method: PATCH
+
+  DeleteItemsHandler:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: TodoBackend::TodoBackend.Functions::DeleteItems
+      Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
+      Events:
+        ApiGatewayRequest:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref TodoBackendApi
+            Path: /
+            Method: DELETE
+
+  DeleteItemHandler:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: TodoBackend::TodoBackend.Functions::DeleteItem
+      Runtime: dotnetcore3.1
+      MemorySize: 512
+      Timeout: 15
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Environment:
+        Variables:
+          TodoTable: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]
+      Events:
+        ApiGatewayRequest:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref TodoBackendApi
+            Path: /{id}
+            Method: DELETE
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   ApiURL:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Description: "API Gateway endpoint URL for Prod stage for Todo-Backend"
     Value: !Sub "https://${TodoBackendApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${StageName}/"
+    
+  TodoTable:
+    Value: !If [CreateTodoTable, !Ref TodoTable, !Ref TodoTableName]

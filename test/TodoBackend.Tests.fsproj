@@ -5,13 +5,22 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="FunctionTest.fs" />
+        <Content Include="appsettings.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Compile Include="TestHelpers.fs" />
+        <Compile Include="Api.IntegrationTest.fs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.Core" Version="1.2.0" />
         <PackageReference Include="Amazon.Lambda.TestUtilities" Version="1.2.0" />
         <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.4.0" />
+        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.5.4.18" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.101" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+        <PackageReference Include="TaskBuilder.fs" Version="2.1.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
           <PrivateAssets>all</PrivateAssets>
